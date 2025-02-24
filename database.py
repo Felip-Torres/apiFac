@@ -25,6 +25,53 @@ class database(object):
     def desconecta(self):
         self.db.close()
 
+    import hashlib
+import base64
+import os
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+
+class database:
+    # Otras funciones de la clase...
+
+    def hash_password(self, password: str) -> str:
+        """Genera un hash seguro usando Scrypt."""
+        salt = os.urandom(16)  # Generar una sal aleatoria
+        n, r, p = 32768, 8, 1  # Parámetros de Scrypt
+
+        kdf = Scrypt(
+            salt=salt,
+            length=32,
+            n=n,
+            r=r,
+            p=p,
+            backend=default_backend()
+        )
+        hashed_password = kdf.derive(password.encode())
+
+        # Formatear el hash como scrypt:n:r:p$salt$hash
+        return f"scrypt:{n}:{r}:{p}${base64.b64encode(salt).decode()}${base64.b64encode(hashed_password).decode()}"
+
+    def createUser(self, username: str, password: str, bio: str, image: str):
+        """Crea un nuevo usuario en la base de datos."""
+        try:
+            # Verificar si el usuario ya existe
+            existing_user = self.getUser(username)
+            if existing_user:
+                return {"error": "El usuario ya existe"}
+
+            # Generar hash de la contraseña
+            hashed_password = self.hash_password(password)
+
+            # Insertar el usuario en la base de datos
+            query = "INSERT INTO users (username, password, bio, image) VALUES (%s, %s, %s, %s)"
+            values = (username, hashed_password, bio, image)
+            self.execute_query(query, values)
+            
+            return {"message": "Usuario creado exitosamente"}
+        except Exception as e:
+            return {"error": str(e)}
+
     def getUsers(self):
         self.conecta()
         sql="SELECT * from usuarisclase;"
