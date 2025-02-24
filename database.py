@@ -8,6 +8,7 @@ class database(object):
                 host='yamanote.proxy.rlwy.net',
                 port=43070,
                 user='root',
+                password='QiaeXdBxTmnWdjaDBGgMrwNCqpvOSKfH',
                 db='railway',
                 charset='utf8mb4',
                 autocommit=True,
