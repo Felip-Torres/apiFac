@@ -3,13 +3,21 @@ from datetime import datetime
 
 class database(object):
     def conecta(self):
-        self.db = pymysql.connect(host='localhost',
-                                     user='root',
-                                     db='tricod',
-                                     charset='utf8mb4',
-                                     autocommit=True,
-                                     cursorclass=pymysql.cursors.DictCursor)
-        self.cursor = self.db.cursor()
+         try:
+            self.db = pymysql.connect(
+                host='mysql.railway.internal',
+                user='root',
+                db='railway',
+                charset='utf8mb4',
+                autocommit=True,
+                cursorclass=pymysql.cursors.DictCursor
+            )
+            self.cursor = self.db.cursor()
+            print("Conexión exitosa a la base de datos.")
+        except pymysql.MySQLError as e:
+            print(f"Error al conectar a la base de datos: {e}")
+            self.db = None
+            self.cursor = None
 
     def desconecta(self):
         self.db.close()
