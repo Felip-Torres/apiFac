@@ -5,7 +5,8 @@ class database(object):
     def conecta(self):
         try:
             self.db = pymysql.connect(
-                host='mysql.railway.internal',
+                host='yamanote.proxy.rlwy.net',
+                port=43070,
                 user='root',
                 db='railway',
                 charset='utf8mb4',
