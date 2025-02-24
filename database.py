@@ -49,24 +49,27 @@ class database(object):
         return f"scrypt:{n}:{r}:{p}${base64.b64encode(salt).decode()}${base64.b64encode(hashed_password).decode()}"
 
     def createUser(self, username: str, password: str, bio: str, image: str):
-        """Crea un nuevo usuario en la base de datos."""
         try:
             # Verificar si el usuario ya existe
             existing_user = self.getUser(username)
             if existing_user:
                 return {"error": "El usuario ya existe"}
-
+    
             # Generar hash de la contraseña
             hashed_password = self.hash_password(password)
-
+    
             # Insertar el usuario en la base de datos
             query = "INSERT INTO users (username, password, bio, image) VALUES (%s, %s, %s, %s)"
             values = (username, hashed_password, bio, image)
-            self.cursor.execute(query, values)
-            
-            return {"message": "Usuario creado exitosamente"}
+            self.execute_query(query, values)
+    
+            # Obtener el ID del nuevo usuario
+            user_id = self.cursor.lastrowid
+    
+            return {"message": "Usuario registrado exitosamente", "user_id": user_id}
         except Exception as e:
             return {"error": str(e)}
+
 
     def getUsers(self):
         self.conecta()
