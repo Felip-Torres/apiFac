@@ -3,7 +3,7 @@ from datetime import datetime
 
 class database(object):
     def conecta(self):
-         try:
+        try:
             self.db = pymysql.connect(
                 host='mysql.railway.internal',
                 user='root',
@@ -15,9 +15,10 @@ class database(object):
             self.cursor = self.db.cursor()
             print("Conexión exitosa a la base de datos.")
         except pymysql.MySQLError as e:
-            print("Error al conectar a la base de datos: {e}")
+            print(f"Error al conectar a la base de datos: {e}")
             self.db = None
             self.cursor = None
+
 
     def desconecta(self):
         self.db.close()
