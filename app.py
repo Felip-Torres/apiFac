@@ -50,14 +50,7 @@ def extractVars(hash):
     
 def pwdMatches(attempt:str, stored:str):
     try:
-        # Extraer la sal, hash y parámetros del hash almacenado
-        salt, stored_hash_value, n, r, p, length = extractVars(stored)
-        attempt_bytes = attempt.encode('utf-8')
-        salt_bytes = salt.encode('utf-8')
-        # Generar el hash con la contraseña propuesta y comparar
-        deriver = Scrypt(salt=salt_bytes, n=n, r=r, p=p, length=length)
-        derived_attempt = deriver.derive(attempt_bytes).hex()
-        return derived_attempt == stored_hash_value
+        return attempt == stored
     except Exception as e:
         raise e
 
