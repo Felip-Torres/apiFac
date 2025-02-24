@@ -106,11 +106,16 @@ def register_user(user_data: dict):
         stored_password = f'scrypt:32768:8:1${salt.hex()}${hashed_password.hex()}'
 
         # Crear usuario en la base de datos
-        user_id = db.createUser(user_data['username'], stored_password, user_data.get('bio', ''), user_data.get('image', ''))
-
-        return {"message": "Usuario registrado exitosamente", "user_id": user_id}
+        result = db.createUser(user_data['username'], stored_password, user_data.get('bio', ''), user_data.get('image', ''))
+        
+        # Verifica si la inserción fue exitosa y devuelve el user_id
+        if 'error' in result:
+            raise HTTPException(status_code=500, detail=result['error'])
+        
+        return {"message": "Usuario registrado exitosamente", "user_id": result['user_id']}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 #End-point to login
