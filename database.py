@@ -62,7 +62,7 @@ class database(object):
             # Insertar el usuario en la base de datos
             query = "INSERT INTO users (username, password, bio, image) VALUES (%s, %s, %s, %s)"
             values = (username, hashed_password, bio, image)
-            self.execute_query(query, values)
+            self.cursor.execute(query, values)
             
             return {"message": "Usuario creado exitosamente"}
         except Exception as e:
