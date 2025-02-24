@@ -91,6 +91,28 @@ def verify_token(token: str = Depends(oauth2_scheme)):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+@app.post('/register')
+def register_user(user_data: dict):
+    try:
+        # Verificar si el usuario ya existe
+        existing_user = db.getUser(user_data['username'])
+        if existing_user:
+            raise HTTPException(status_code=400, detail='El usuario ya existe')
+
+        # Generar un hash seguro para la contraseña
+        salt = os.urandom(16)
+        deriver = Scrypt(salt=salt, n=32768, r=8, p=1, length=32)
+        hashed_password = deriver.derive(user_data['password'].encode('utf-8'))
+        stored_password = f'scrypt:32768:8:1${salt.hex()}${hashed_password.hex()}'
+
+        # Crear usuario en la base de datos
+        user_id = db.createUser(user_data['username'], stored_password, user_data.get('bio', ''), user_data.get('image', ''))
+
+        return {"message": "Usuario registrado exitosamente", "user_id": user_id}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 #End-point to login
 @app.post('/login')
 def login(request: LoginRequest):
