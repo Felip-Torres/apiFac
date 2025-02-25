@@ -152,6 +152,7 @@ def getUsersMessages(loadSize: int, user1: str , user2: str, request: Request):
             return response
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Acceso denegado")
     except Exception as e:
+        print(f"Error en sendMessage: {e}")
         raise e
 
 @app.get("/home")
@@ -224,6 +225,7 @@ def sendMessage(message: dict, request: Request):
             completedMessage['receiver'] = db.getUserId(message['receiver'])                              
             db.sendUsersMessage(completedMessage)
     except Exception as e:
+        print(f"Error en sendMessage: {e}")
         raise e
 
 # End-point to change admin status
