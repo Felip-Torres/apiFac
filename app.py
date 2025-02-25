@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException, status, Request
 from datetime import datetime, date, timedelta, timezone
 from database import database
-from models import UserGroup, LoginRequest, CreateGroupRequest
+from models import UserGroup, LoginRequest, CreateGroupRequest, RegisterRequest
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
 from fastapi.middleware.cors import CORSMiddleware
@@ -30,23 +30,6 @@ app.add_middleware(
 SECRET_KEY = "ivillave"
 ALGORITHM = "HS256"
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-def extractVars(hash):
-    # La cadena se divide en las tres partes del formato scrypt
-    parts = hash.split('$')
-    # Partes esperadas: ["", "scrypt:32768:8:1", "sal", "hash"]
-    if len(parts) == 3:
-        # Extraer los parámetros de la parte "scrypt:32768:8:1"
-        params = parts[0].split(':')
-        n, r, p = int(params[1]), int(params[2]), int(params[3])
-        # La sal es la segunda parte (después de "scrypt:...")
-        salt = parts[1]
-        # El hash es la última parte
-        hash_value = parts[2]
-        hash_value_byte_length = math.ceil(len(parts[2]) / 2)
-        return salt, hash_value, n, r, p, hash_value_byte_length
-    else:
-        raise ValueError("Fallo interno del servidor")
     
 def pwdMatches(attempt:str, stored:str):
     try:
@@ -85,21 +68,15 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         )
 
 @app.post('/register')
-def register_user(user_data: dict):
+def register(request: RegisterRequest):
     try:
         # Verificar si el usuario ya existe
-        existing_user = db.getUser(user_data['username'])
+        existing_user = db.getUser(request.USERNAME)
         if existing_user:
             raise HTTPException(status_code=400, detail='El usuario ya existe')
 
-        # Generar un hash seguro para la contraseña
-        salt = os.urandom(16)
-        deriver = Scrypt(salt=salt, n=32768, r=8, p=1, length=32)
-        hashed_password = deriver.derive(user_data['password'].encode('utf-8'))
-        stored_password = f'scrypt:32768:8:1${salt.hex()}${hashed_password.hex()}'
-
         # Crear usuario en la base de datos
-        result = db.createUser(user_data['username'], stored_password, user_data.get('bio', ''), user_data.get('image', ''))
+        result = db.createUser(request.USERNAME, request.PASSWORD, request.BIO, request.IMAGE)
         
         # Verifica si la inserción fue exitosa y devuelve el user_id
         if 'error' in result:
