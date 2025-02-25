@@ -219,11 +219,8 @@ def sendMessage(message: dict, request: Request):
             "sender": userId,
             **message
         }
-        if not completedMessage['receiver']:
-            db.sendGroupMessage(completedMessage)    
-        else:
-            completedMessage['receiver'] = db.get_user_id_by_name(message['receiver'])                              
-            db.sendUsersMessage(completedMessage)
+                                    
+        db.sendUsersMessage(completedMessage)
     except Exception as e:
         print(f"Error en sendMessage: {e}")
         raise e
