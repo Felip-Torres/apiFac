@@ -395,7 +395,7 @@ class database(object):
         self.desconecta()
         return 
 
-    def get_user_id_by_name(username):
+    def get_user_id_by_name(self, username):
         sql = "SELECT id FROM users WHERE username = %s"
         self.cursor.execute(sql, (username,))
         result = self.cursor.fetchone()
