@@ -222,7 +222,7 @@ def sendMessage(message: dict, request: Request):
         if not completedMessage['receiver']:
             db.sendGroupMessage(completedMessage)    
         else:
-            completedMessage['receiver'] = db.getUserId(message['receiver'])                              
+            completedMessage['receiver'] = db.get_user_id_by_name(message['receiver'])                              
             db.sendUsersMessage(completedMessage)
     except Exception as e:
         print(f"Error en sendMessage: {e}")
