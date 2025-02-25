@@ -406,8 +406,8 @@ class database(object):
     def sendUsersMessage(self, message: dict):
         self.conecta()
 
-        sender_id = get_user_id_by_name(message['sender'])
-        receiver_id = get_user_id_by_name(message['receiver'])
+        sender_id = self.get_user_id_by_name(message['sender'])
+        receiver_id = self.get_user_id_by_name(message['receiver'])
         
         sql = "INSERT INTO message (date, status, body, sender_id, receiver_id) VALUES (%s, %s, %s, %s, %s);"
         self.cursor.execute(sql, (message['date'], message['status'], message['body'], message['sender'], message['receiver']))
