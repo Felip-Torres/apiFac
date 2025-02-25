@@ -36,12 +36,6 @@ class LastMessageUsers(BaseModel):
 class LoginRequest(BaseModel):
     USERNAME: str
     PASSWORD: str
-
-class RegisterRequest(BaseModel):
-    USERNAME: str
-    PASSWORD: str
-    BIO: str
-    IMAGE: str
     
 class CreateGroupRequest(BaseModel):
     NAME: str

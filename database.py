@@ -30,33 +30,47 @@ class database(object):
     def desconecta(self):
         self.db.close()
 
+    def hash_password(self, password: str) -> str:
+        """Genera un hash seguro usando Scrypt."""
+        salt = os.urandom(16)  # Generar una sal aleatoria
+        n, r, p = 32768, 8, 1  # Parámetros de Scrypt
+
+        kdf = Scrypt(
+            salt=salt,
+            length=32,
+            n=n,
+            r=r,
+            p=p,
+            backend=default_backend()
+        )
+        hashed_password = kdf.derive(password.encode())
+
+        # Formatear el hash como scrypt:n:r:p$salt$hash
+        return f"scrypt:{n}:{r}:{p}${base64.b64encode(salt).decode()}${base64.b64encode(hashed_password).decode()}"
+
     def createUser(self, username: str, password: str, bio: str, image: str):
         try:
-            
             # Verificar si el usuario ya existe
             existing_user = self.getUser(username)
             if existing_user:
                 return {"error": "El usuario ya existe"}
     
+            # Generar hash de la contraseña
+            hashed_password = self.hash_password(password)
+    
             # Insertar el usuario en la base de datos
-            query = "INSERT INTO usuarisclase VALUES (NULL, %s, %s, %s, %s)"
-
-            self.conecta()
-
-            self.cursor.execute(query, (username, password, bio, image))
-
-            print("llegue por aqui")
+            query = "INSERT INTO users (username, password, bio, image) VALUES (%s, %s, %s, %s)"
+            values = (username, hashed_password, bio, image)
+            self.cursor.execute(query, values)
 
             # Confirmar los cambios en la base de datos
             self.db.commit()  # Asegurarse de que los cambios se guarden
-
+    
             # Obtener el ID del nuevo usuario
             user_id = self.cursor.lastrowid
-            self.desconecta()
     
             return {"message": "Usuario registrado exitosamente", "user_id": user_id}
         except Exception as e:
-            print (f"Error al crear usuario: {e.args}")
             return {"error": str(e)}
 
 
