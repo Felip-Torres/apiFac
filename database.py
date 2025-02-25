@@ -405,10 +405,9 @@ class database(object):
         self.conecta()
 
         sender_id = self.get_user_id_by_name(message['sender'])
-        receiver_id = self.get_user_id_by_name(message['receiver'])
         
         sql = "INSERT INTO message (date, status, body, sender_id, receiver_id) VALUES (%s, %s, %s, %s, %s);"
-        self.cursor.execute(sql, (message['date'], message['status'], message['body'], sender_id, receiver_id))
+        self.cursor.execute(sql, (message['date'], message['status'], message['body'], sender_id, message['receiver']))
         self.desconecta()
         return
 
