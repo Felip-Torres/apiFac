@@ -157,11 +157,7 @@ def getUsersMessages(loadSize: int, user1: str , user2: str, request: Request):
 @app.get("/home")
 def getHome(request: Request):
     try:
-        token = request.cookies.get("token")  # Obtener token desde cookie
-        if not token:
-            raise HTTPException(status_code=401, detail="Token no encontrado en las cookies")
-
-        userId = verify_token(token) 
+        userId = verify_token(request.cookies.get("token"))
         lastMessage = db.getLastMessagesUsers(userId)
         for hora in lastMessage:
             hora['time'] = date.strftime(hora['time'], "%H:%M")
