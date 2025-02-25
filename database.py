@@ -396,9 +396,11 @@ class database(object):
         return 
 
     def get_user_id_by_name(self, username):
+        self.conecta()
         sql = "SELECT id FROM users WHERE username = %s"
         self.cursor.execute(sql, (username,))
         result = self.cursor.fetchone()
+        self.desconecta()
         return result['id'] if result else None
     
     def sendUsersMessage(self, message: dict):
